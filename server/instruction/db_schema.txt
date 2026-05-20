@@ -1,0 +1,136 @@
+--- TABLES ---
+
+individuals
+---
+id
+first_name
+last_name
+middle_name
+passport_data
+phone_number
+
+employees
+---
+id
+individual_id (FK)
+contract_number
+position
+hire_date
+
+clients
+---
+id
+individual_id (FK)
+login
+password_hash
+email
+balance
+
+contracts
+---
+id
+client_id (FK)
+address_id (FK)
+employee_id (FK)
+monthly_payment_amount
+file_link
+duration
+sign_date
+
+payments
+---
+id
+contract_id (FK)
+date
+
+contract_addresses
+---
+id
+region
+city
+street
+building
+apartment
+
+coffee_machine_states (PK: contract_id + coffee_machine_id + status_change_date)
+---
+contract_id (FK)
+coffee_machine_id (FK)
+status_change_date
+work_status
+
+coffee_machines
+---
+id
+model_id (FK)
+brand_id (FK)
+type_id (FK)
+pressure
+power
+water_tank_volume
+cups_per_hour
+bean_container_volume
+chip_number
+width
+height
+depth
+weight
+
+coffee_machine_models
+---
+id
+brand_id (FK)
+name
+
+coffee_machine_brands
+---
+id
+name
+
+coffee_machine_types
+---
+id
+name
+
+coffee_machine_photos
+---
+id
+coffee_machine_id (FK)
+photo_link
+
+rental_prices (PK: coffee_machine_id + change_date)
+---
+coffee_machine_id (FK)
+change_date
+price
+
+supported_drinks
+---
+coffee_machine_id (FK)
+drink_id (FK)
+
+drinks
+---
+id
+name
+
+
+--- RELATIONSHIPS ---
+
+individuals -> clients (1 : 1, идентифицирующая)
+individuals -> employees (1 : 1, идентифицирующая)
+individuals -> contracts (1 : M, идентифицирующая)
+clients -> contracts (1 : M, идентифицирующая)
+contract_addresses -> contracts (1 : M, идентифицирующая)
+employees -> contracts (1 : M, не идентифицирующая)
+contracts -> payments (1 : M, идентифицирующая)
+clients -> payments (1 : M, идентифицирующая)
+contracts -> coffee_machine_states (1 : M, идентифицирующая)
+coffee_machines -> coffee_machine_states (1 : M, идентифицирующая)
+coffee_machine_brands -> coffee_machine_models (1 : M, идентифицирующая)
+coffee_machine_models -> coffee_machines (1 : M, идентифицирующая)
+coffee_machine_types -> coffee_machines (1 : M, идентифицирующая)
+coffee_machines -> rental_prices (1 : M, идентифицирующая)
+coffee_machines -> supported_drinks (1 : M, идентифицирующая)
+drinks -> supported_drinks (1 : M, идентифицирующая)
+coffee_machines -> coffee_machine_photos (1 : M, идентифицирующая)
