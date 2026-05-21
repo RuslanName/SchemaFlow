@@ -86,10 +86,12 @@ type ExplorerState = {
   sortBy?: string
   sortDir: SortDir
   filters: Record<string, ColumnFilter>
+  idSearchByTable: Record<string, string>
   setActiveTable: (table: string) => void
   setTabViewport: (table: string, viewport: ViewportState) => void
   setSort: (sortBy?: string, sortDir?: SortDir) => void
   setColumnFilter: (column: string, filter?: ColumnFilter) => void
+  setIdSearch: (table: string, query: string) => void
   expandFk: (params: ExpandFkParams) => Promise<void>
   updateCardPosition: (key: string, position: { x: number; y: number }) => void
   removeCard: (key: string) => void
@@ -118,12 +120,16 @@ export const selectActiveDeletingOrigins = (s: ExplorerState) =>
 
 export const selectActiveFilters = (s: ExplorerState) => s.filters
 
+export const selectActiveIdSearch = (s: ExplorerState) =>
+  s.idSearchByTable[s.activeTable] ?? ''
+
 export const useExplorerStore = create<ExplorerState>((set, get) => ({
   activeTable: 'contracts',
   sessions: {},
   fitViewTick: 0,
   sortDir: 'asc',
   filters: {},
+  idSearchByTable: {},
 
   requestFitView: () => {
     set({ fitViewTick: get().fitViewTick + 1 })
@@ -167,6 +173,18 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
       }
     }
     set({ filters: next })
+  },
+
+  setIdSearch: (table, query) => {
+    const trimmed = query.trim()
+    const prev = get().idSearchByTable
+    const next = { ...prev }
+    if (!trimmed) {
+      delete next[table]
+    } else {
+      next[table] = query
+    }
+    set({ idSearchByTable: next })
   },
 
   expandFk: async (params) => {

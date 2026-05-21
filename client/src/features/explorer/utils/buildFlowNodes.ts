@@ -20,6 +20,8 @@ export function buildFlowNodesWithSchema(
   onEnterEditMode: () => void,
   filters: Record<string, ColumnFilter>,
   onSetFilter: (column: string, filter?: ColumnFilter) => void,
+  idSearch: string,
+  onIdSearchChange: (query: string) => void,
 ): Node[] {
   const meta = getTableMeta(schema, activeTable)
   if (!meta) return []
@@ -45,6 +47,8 @@ export function buildFlowNodesWithSchema(
         onEnterEditMode,
         filters,
         onSetFilter,
+        idSearch,
+        onIdSearchChange,
       },
     },
   ]

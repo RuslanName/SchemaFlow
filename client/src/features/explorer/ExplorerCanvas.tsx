@@ -20,6 +20,7 @@ import { WaveEdge } from './edges/WaveEdge'
 import { ExplorerControls } from './components/ExplorerControls'
 import { TabViewportController, FitViewController } from './components/ExplorerFlowControllers'
 import { matchesFilters } from './utils/matchesFilters'
+import { matchesIdSearch } from './utils/matchesIdSearch'
 import { buildFlowNodesWithSchema } from './utils/buildFlowNodes'
 import {
   useExplorerStore,
@@ -28,6 +29,7 @@ import {
   selectActiveEdges,
   selectActiveDeletingOrigins,
   selectActiveFilters,
+  selectActiveIdSearch,
 } from '../../store/explorerStore'
 import { useSchema } from '../../context/SchemaContext'
 import { exploreApi } from '../../api/explore'
@@ -59,8 +61,10 @@ export function ExplorerCanvas() {
   const sortBy = useExplorerStore((s) => s.sortBy)
   const sortDir = useExplorerStore((s) => s.sortDir)
   const filters = useExplorerStore(selectActiveFilters)
+  const idSearch = useExplorerStore(selectActiveIdSearch)
   const setSort = useExplorerStore((s) => s.setSort)
   const setColumnFilter = useExplorerStore((s) => s.setColumnFilter)
+  const setIdSearch = useExplorerStore((s) => s.setIdSearch)
   const removeCardsByOrigin = useExplorerStore((s) => s.removeCardsByOrigin)
   const setDeletingOrigin = useExplorerStore((s) => s.setDeletingOrigin)
   const queryClient = useQueryClient()
@@ -143,10 +147,17 @@ export function ExplorerCanvas() {
 
   const rows = rowsQuery.data?.rows ?? []
   const meta = getTableMeta(schema, activeTable)
+  const onIdSearchChange = useCallback(
+    (query: string) => setIdSearch(activeTable, query),
+    [activeTable, setIdSearch],
+  )
+
   const visibleRows = useMemo(() => {
     if (!meta) return rows
-    return rows.filter((row) => matchesFilters(meta, row, filters))
-  }, [filters, meta, rows])
+    return rows.filter(
+      (row) => matchesFilters(meta, row, filters) && matchesIdSearch(meta, row, idSearch),
+    )
+  }, [filters, idSearch, meta, rows])
   const visibleRowKeys = useMemo(
     () => new Set(visibleRows.map((r) => rowKey(schema, activeTable, r))),
     [activeTable, schema, visibleRows],
@@ -186,12 +197,16 @@ export function ExplorerCanvas() {
         onEnterEditMode,
         filters,
         setColumnFilter,
+        idSearch,
+        onIdSearchChange,
       ),
     [
       activeTable,
       visibleCards,
       deletingOriginRowKeys,
       filters,
+      idSearch,
+      onIdSearchChange,
       onCreateRow,
       onDeleteRow,
       onEnterEditMode,
@@ -208,8 +223,8 @@ export function ExplorerCanvas() {
     const rowIds = visibleRows.map((r) => rowKey(schema, activeTable, r)).join(',')
     const cardIds = visibleCards.map((c) => c.key).join(',')
     const filterSig = JSON.stringify(filters)
-    return `${activeTable}|${rowIds}|${cardIds}|${sortBy ?? ''}|${sortDir}|${filterSig}`
-  }, [activeTable, visibleRows, visibleCards, schema, sortBy, sortDir, filters])
+    return `${activeTable}|${rowIds}|${cardIds}|${sortBy ?? ''}|${sortDir}|${filterSig}|${idSearch}`
+  }, [activeTable, visibleRows, visibleCards, schema, sortBy, sortDir, filters, idSearch])
 
   const flowEdges = useMemo<Edge[]>(
     () =>

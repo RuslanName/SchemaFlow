@@ -1,7 +1,7 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { useUpdateNodeInternals, type NodeProps } from '@xyflow/react'
 import clsx from 'clsx'
-import { Check, Plus, Table2, X } from 'lucide-react'
+import { Check, Plus, Search, Table2, X } from 'lucide-react'
 import type { RowRecord } from '../../../types/schema'
 import { rowKey, rowPkMap } from '../utils/rowKey'
 import { useExplorerStore, tableNodeId, type ColumnFilter } from '../../../store/explorerStore'
@@ -12,6 +12,7 @@ import { TableColumnHeader } from './TableColumnHeader'
 import { TableEditorCell } from './TableEditorCell'
 import { TableDataRow } from './TableDataRow'
 import type { TableNodeData } from './tableNodeTypes'
+import { stopFlowEvent } from '../utils/stopFlowEvent'
 import './nodes.css'
 
 export type { TableNodeData } from './tableNodeTypes'
@@ -32,6 +33,8 @@ function TableNodeComponent({ data }: NodeProps) {
     onEnterEditMode,
     filters,
     onSetFilter,
+    idSearch,
+    onIdSearchChange,
   } = nodeData
   const expandFk = useExplorerStore((s) => s.expandFk)
   const requestFitView = useExplorerStore((s) => s.requestFitView)
@@ -171,6 +174,31 @@ function TableNodeComponent({ data }: NodeProps) {
           <h3 className="table-node__title">{meta.label}</h3>
         </div>
         <div className="table-node__toolbar">
+          <label className="table-node__search nopan nodrag nowheel">
+            <Search size={14} aria-hidden className="table-node__search-icon" />
+            <input
+              type="search"
+              className="table-node__search-input"
+              value={idSearch}
+              onChange={(e) => onIdSearchChange(e.target.value)}
+              onPointerDown={stopFlowEvent}
+              onMouseDown={stopFlowEvent}
+              placeholder="Поиск по ID"
+              aria-label="Поиск по ID"
+            />
+            {idSearch ? (
+              <button
+                type="button"
+                className="table-node__search-clear"
+                title="Очистить"
+                onClick={() => onIdSearchChange('')}
+                onPointerDown={stopFlowEvent}
+                onMouseDown={stopFlowEvent}
+              >
+                <X size={12} />
+              </button>
+            ) : null}
+          </label>
           <button type="button" className="table-node__icon-btn" title="Добавить" onClick={startAdd}>
             <Plus size={14} />
           </button>

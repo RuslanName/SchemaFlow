@@ -32,9 +32,6 @@ export function ExplorerPage() {
     return (
       <div className="explorer-page explorer-page--error">
         <p>Не удалось загрузить схему: {schemaQuery.error.message}</p>
-        <p className="explorer-page__hint">
-          Запустите API-сервер и восстановите данные скриптом из <code>scripts/</code>
-        </p>
       </div>
     )
   }

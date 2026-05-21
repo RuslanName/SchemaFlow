@@ -15,4 +15,6 @@ export type TableNodeData = {
   onEnterEditMode: () => void
   filters: Record<string, ColumnFilter>
   onSetFilter: (column: string, filter?: ColumnFilter) => void
+  idSearch: string
+  onIdSearchChange: (query: string) => void
 }
